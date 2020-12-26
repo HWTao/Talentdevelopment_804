@@ -1,31 +1,31 @@
 <template>
   <layout id="index">
-      <div class="bg">
-          <img :src="require('../assets/images/bj.png')" alt="">
-      </div>
+    <div class="bg">
+      <img :src="require('../assets/images/bj.png')" alt="" />
+    </div>
     <div class="title">
       <span class="big">Hello</span><span>,804人力资源欢迎您</span>
     </div>
     <div class="user-info">
       <div class="avatar">
-        <img :src="userInfo.avatar" alt="" />
+        <img :src="UserInfo.userPhoto || require('../assets/images/avatar.png')" alt="" />
       </div>
       <div class="desp">
-        <div class="username">{{ userInfo.username }}</div>
-        <div class="dept">{{ userInfo.dept }}</div>
+        <div class="username">{{ UserInfo.userName }}</div>
+        <div class="dept">{{UserInfo.deptName }}</div>
       </div>
     </div>
     <div class="notice">
       <van-icon class="bell" color="#fabc3f" name="bell" />
-      <span class="text">通知：{{ notice }}</span>
+      <span class="text">通知：{{ message }}</span>
     </div>
     <van-grid class="nav" :border="false" :column-num="3">
       <van-grid-item
-        :icon="item.icon"
-        :text="item.name"
-        :badge="item.badge != 0 ? item.badge : ''"
-        v-for="(item, index) in nav"
+        :icon="item.menuIco96"
+        :text="item.menuName"
+        v-for="(item, index) in menuArrInfo"
         :key="index"
+        @click="linkto(item.menuUrl)"
       />
     </van-grid>
   </layout>
@@ -33,72 +33,79 @@
 
 <script>
 import Layout from "@/components/Layout";
+import { mapState } from "vuex";
 export default {
   name: "App",
   data() {
     return {
-      userInfo: {
-        username: "王亮亮",
-        dept: "人力资源部",
-        avatar: require("../assets/images/avatar.png"),
-      },
-      notice: "我们正在构建人力资源模块，敬请期待～",
-      nav: [
-        {
-          name: "人员管理",
-          icon: require("../assets/images/rygl.png"),
-          badge: 0,
-        },
-        {
-          name: "统计分析",
-          icon: require("../assets/images/tjfx.png"),
-          badge: 0,
-        },
-        {
-          name: "脱密管理",
-          icon: require("../assets/images/tmgl.png"),
-          badge: 0,
-        },
-      ],
     };
+  },
+  computed: {
+    ...mapState(["UserInfo","message","menuArrInfo"]),
   },
   components: {
     Layout,
   },
   mounted() {
-    this.init();
+    this.init()
   },
   methods: {
     init() {
-      this.getUserInfo()
+      this.getMenu();
+      this.getNameAndDepartmentName();
+      this.getNotice();
+      console.log(window.location.href)
     },
-    getUserInfo() {
-      var _this = this
+    //获取某个⼈某个菜单下授权的功能清单
+    getMenu() {
+      var _this = this;
       var data = {
-        sid: _this.$route.query.sid,
-        parentId: 'obj_a0bcc6062c324dc797312aa6426b4142',
-        com: "",
-      }
-      console.log(data);
-      this.$store.dispatch('getUserInfo',data)
+        params: {
+          sid: _this.$route.query.sid,
+          parentId: "obj_e12766628c164e9080d7b54b2a85ee27",
+        },
+      };
+      this.$store.dispatch("getMenu", data);
+    },
+    //获取⼈员姓名和部⻔名称接⼝
+    getNameAndDepartmentName() {
+      var _this = this;
+      var data = {
+        params: {
+          sid: _this.$route.query.sid,
+        },
+      };
+      this.$store.dispatch("getNameAndDepartmentName", data);
+    },
+    //获取通知接⼝
+    getNotice() {
+      var _this = this;
+      var data = {
+        params: {
+          sid: _this.$route.query.sid,
+        },
+      };
+      this.$store.dispatch("getNotice", data);
+    },
+    linkto(path) {
+      window.location.href = path;
     }
-  }
+  },
 };
 </script>
 
 <style scoped lang="less">
 #index {
-    .bg {
-        width: 100%;
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: -1;
-        img {
-            width: 100%;
-        }
-        
+  .bg {
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    img {
+      width: 100%;
     }
+  }
   .title {
     color: #fff;
     font-size: 16px;
@@ -154,7 +161,7 @@ export default {
   }
 
   .nav {
-      margin-top: 40px;
+    margin-top: 40px;
   }
 }
 </style>

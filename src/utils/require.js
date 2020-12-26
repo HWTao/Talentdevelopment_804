@@ -22,6 +22,7 @@ axios.interceptors.request.use(config => {
     return config
 }, error => {
     //请求错误预处理
+    Toast.fail(error.message)
     return Promise.reject(error)
 })
 
@@ -32,7 +33,8 @@ axios.interceptors.response.use(response => {
     }
     //仅返回数据部分
     const res = response.data
-    if (res.code !== '0000') {
+    if (res.status !== '0') {
+        Toast.fail(res.msg)
         return Promise.reject(new Error(res.msg || 'Error'))
     } else {
         return res
